@@ -16,9 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('instagram/', include('instagram.urls')),  # Include Instagram app URLs under /instagram/
-    
+    path('reddit/', include('reddit_analyzer.urls')),
+    path('reddit_profile/', include('reddit_profile_analyzer.urls')), # Include your new app's URLs
+    path('', views.dashboard, name='dashboard_page')
+
 ]

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Profile Analysis Results</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* A modern, readable sans-serif font */
+            color: #374151; /* Dark gray for better readability */
+            background-color: #f3f4f6; /* Light gray background */
+            line-height: 1.75;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 85%;
+            max-width: 1200px;
+            margin: 40px auto;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        h1, h2, h3 {
+            color: #1e293b; /* Darker gray for headings */
+            line-height: 1.3;
+            margin-bottom: 0.75rem;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            border-bottom: 2px solid #cbd5e0; /* Light gray border */
+            padding-bottom: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #3b82f6; /* A more prominent blue */
+            margin-top: 2.5rem;
+        }
+
+        h3 {
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin-top: 1.75rem;
+        }
+
+        .result-card {
+            background-color: #fff;
+            border: 1px solid #e5e7eb; /* Light gray border */
+            padding: 25px;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .error {
+            color: #dc2626; /* Red error color */
+            font-weight: 500;
+            padding: 0.75rem;
+            background-color: #fef2f2; /* Light red background */
+            border: 1px solid #fecaca; /* Light red border */
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        a {
+            color: #3b82f6;
+            text-decoration: none;
+            transition: color 0.2s ease-in-out;
+        }
+
+        a:hover {
+            color: #2563eb; /* Darker blue on hover */
+            text-decoration: underline;
+        }
+
+        .profile-info {
+            color: #6b7280; /* Medium gray */
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .item-list {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .item {
+            color: #4b5563; /* Slightly darker medium gray */
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+        }
+
+        .item a {
+            font-weight: 500;
+        }
+
+        .button-container {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        button {
+            background-color: #3b82f6;
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+        }
+
+        #exportForm {
+            margin: 0;
+        }
+
+        #filenameInput {
+            padding: 0.6rem;
+            border: 1px solid #d1d5db; /* Light gray border */
+            border-radius: 4px;
+            margin-right: 0.75rem;
+        }
+
+        .no-results {
+            color: #71717a; /* Another shade of gray */
+            font-style: italic;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Reddit Profile Analysis Results</h1>
+        {% for result in results %}
+            <div class="result-card">
+                {% if result.error %}
+                    <p class="error">Error: {{ result.error }}</p>
+                {% else %}
+                    <h2><a href="{{ result.link }}" target="_blank">{{ result.name }}</a></h2>
+                    <p class="profile-info">
+                        Created: {{ result.created }} | Karma: {{ result.karma }} | Karma/Day: {{ result.karma_per_day|floatformat:2 }} | Account Age: {{ result.account_age_days }} days
+                    </p>
+                    {% if result.items %}
+                        <div class="item-list">
+                            <h3>Recent Activity:</h3>
+                            <ul>
+                                {% for item in result.items %}
+                                    <li class="item">
+                                        [{{ item.Type }}] <a href="{{ item.Comment_Post_Link }}" target="_blank">{{ item.Name|truncatechars:75 }}</a>
+                                        (Author: <a href="{{ item.Account_Link }}" target="_blank">{{ item.Account }}</a>) -
+                                        Sentiment: Positive ({{ item.Positive_Comments_Count }}), Negative ({{ item.Negative_Comments_Count }})
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% empty %}
+            <p class="no-results">No Reddit usernames were processed. Please upload a file to begin analysis.</p>
+        {% endfor %}
+        <div class="button-container">
+            <button onclick="window.location.href='{% url 'reddit_profile_analyzer_upload' %}'">Analyze More Profiles</button>
+            <form id="exportForm" method="get" action="{% url 'reddit_profile_analyzer_export' %}">
+                {% csrf_token %}
+                <button type="button" onclick="promptForFilename()">Export to Excel</button>
+                <input type="hidden" id="filenameInput" name="filename">
+            </form>
+        </div>
+
+        <script>
+            function promptForFilename() {
+                const defaultFilename = 'Reddit_Profile_Analysis.xlsx';
+                const filename = prompt('Enter a filename for the Excel file:', defaultFilename);
+                if (filename) {
+                    document.getElementById('filenameInput').value = filename.endsWith('.xlsx') ? filename.slice(0, -5) : filename;
+                    document.getElementById('exportForm').submit();
+                }
+            }
+        </script>
+    </div>
+</body>
+</html>

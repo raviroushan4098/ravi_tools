@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Analyzer Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Prevent scrollbar during animation */
+        }
+
+        .dashboard-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInSlideUp 0.6s ease-out forwards 0.2s; /* Entrance animation */
+        }
+
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .app-card {
+            background-color: #e9ecef;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            transform: scale(0.9);
+            animation: fadeInScaleUp 0.5s ease-out forwards var(--delay);
+        }
+
+        @keyframes fadeInScaleUp {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Individual card delays for staggered entrance */
+        .app-card:nth-child(1) { --delay: 0.4s; }
+        .app-card:nth-child(2) { --delay: 0.6s; }
+        .app-card:nth-child(3) { --delay: 0.8s; }
+
+        .app-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .app-card h2 {
+            color: #28a745;
+            margin-top: 0;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .app-card h2 i {
+            font-size: 1.5em;
+        }
+
+        .app-card p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .app-card a {
+            display: inline-block;
+            padding: 12px 24px;
+            text-decoration: none;
+            color: #fff;
+            background-color: #007bff;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        .app-card a:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1><i class="fas fa-chart-bar"></i> Social Media Analyzer</h1>
+        <div class="app-grid">
+            <div class="app-card">
+                <h2><i class="fab fa-instagram"></i> Instagram Analyzer</h2>
+                <p>Dive into Instagram profile and media insights.</p>
+                <a href="{% url 'upload_csv' %}">Go to Instagram Analyzer</a>
+            </div>
+            <div class="app-card">
+                <h2><i class="fab fa-reddit-alien"></i> Reddit Analyzer</h2>
+                <p>Explore trends and perform bulk analysis on Reddit data.</p>
+                <a href="{% url 'bulk_analyze' %}">Go to Reddit Analyzer</a>
+            </div>
+            <div class="app-card">
+                <h2><i class="fas fa-user-circle"></i> Reddit Profile Analyzer</h2>
+                <p>Get a detailed breakdown of individual Reddit user activity.</p>
+                <a href="{% url 'reddit_profile_analyzer_upload' %}">Go to Reddit Profile Analyzer</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

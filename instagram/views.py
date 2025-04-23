@@ -105,18 +105,32 @@ class AnalyzePostsView(View):
         return render(request, self.template_name, {'form': form, 'error': 'Invalid form submission'})
 
 def export_excel(request):
-    analysed_data = request.session.get('analysed_data')
-    if not analysed_data:
-        return HttpResponse("No data to export.")
+    """
+    Exports the analyzed Instagram post data to an Excel file.
 
-    df = pd.DataFrame(analysed_data)
-    excel_buffer = io.BytesIO()
-    df.to_excel(excel_buffer, index=False, sheet_name='Instagram Analysis')
-    excel_buffer.seek(0)
+    Args:
+        request (HttpRequest): The Django HTTP request object.
 
-    response = HttpResponse(
-        excel_buffer.read(),
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-    response['Content-Disposition'] = 'attachment; filename="instagram_analysis.xlsx"'
+    Returns:
+        HttpResponse: An HTTP response containing the Excel file.
+    """
+    analyzed_data = request.session.get("analysed_data", [])
+    if not analyzed_data:
+        return redirect(reverse('upload_csv'))  # Redirect to the upload page if no data
+
+    # Filter out any potential error entries before creating the DataFrame
+    filtered_data = [
+        item for item in analyzed_data if "error" not in item
+    ]
+
+    if not filtered_data:
+        return HttpResponse("No valid data to export.", content_type="text/plain")
+
+    df = pd.DataFrame(filtered_data)
+    filename = request.GET.get("filename", "instagram_analysis") + ".xlsx"
+
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    df.to_excel(response, index=False)
     return response

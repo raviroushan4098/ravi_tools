@@ -1,55 +1,156 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Instagram Analysis Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa; /* Light background */
+        }
+        .container {
+            margin-top: 3rem;
+        }
+        h1 {
+            /* Instagram Gradient - tweaked for a solid but branded feel */
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .table {
+            margin-bottom: 1.5rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+            border-color: #ddd; /* Subtle border */
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #eee;
+            color: #555; /* Darker text for headers */
+        }
+        .table tbody td {
+            color: #333;
+        }
+        .comment-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .comment-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #eee;
+            color: #333;
+        }
+        .comment-list li:last-child {
+            border-bottom: none;
+        }
+        .actions {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .btn {
+            border-radius: 0.25rem;
+            margin: 0 0.5rem;
+            font-weight: bold;
+        }
+        .btn-secondary {
+            /* Light grey for back button */
+            background-color: #e0e0e0;
+            border-color: #e0e0e0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background-color: #c2c2c2;
+            border-color: #c2c2c2;
+        }
+        .btn-success {
+            /* Instagram Blue for export */
+            background-color: #0095f6;
+            border-color: #0095f6;
+            color: white;
+        }
+        .btn-success:hover {
+            background-color: #007ad4;
+            border-color: #007ad4;
+        }
+        #export_form {
+            display: inline;
+        }
+        #excel_filename {
+            padding: 0.5rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+        .input-group-text {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            color: #555;
+        }
+    </style>
 </head>
 <body>
-    <h1>Instagram Analysis Results</h1>
-    {% if data %}
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Shortcode</th>
-                    <th>Username</th>
-                    <th>Caption</th>
-                    <th>Views</th>
-                    <th>Plays</th>
-                    <th>Likes</th>
-                    <th>Comments Count</th>
-                    <th>Comments</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in data %}
-                <tr>
-                    <td>{{ item.shortcode }}</td>
-                    <td>{{ item.username }}</td>
-                    <td>{{ item.caption }}</td>
-                    <td>{{ item.views }}</td>
-                    <td>{{ item.plays }}</td>
-                    <td>{{ item.likes }}</td>
-                    <td>{{ item.comments_count }}</td>
-                    <td>
-                    {% if item.comments %}
-                        <ul>
-                        {% for comment in item.comments %}
-                            <li>
-                                <strong>{{ comment.owner_username }}:</strong> {{ comment.text }} (Likes: {{ comment.likes }})
-                            </li>
+    <div class="container">
+        <h1>Instagram Analysis Results</h1>
+        {% if data %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Shortcode</th>
+                            <th>Username</th>
+                            <th>Caption</th>
+                            <th>Views</th>
+                            <th>Plays</th>
+                            <th>Likes</th>
+                            <th>Comments Count</th>
+                            <th>Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in data %}
+                        <tr>
+                            <td>{{ item.shortcode }}</td>
+                            <td>{{ item.username }}</td>
+                            <td>{{ item.caption }}</td>
+                            <td>{{ item.views }}</td>
+                            <td>{{ item.plays }}</td>
+                            <td>{{ item.likes }}</td>
+                            <td>{{ item.comments_count }}</td>
+                            <td>
+                                {% if item.comments %}
+                                    <ul class="comment-list">
+                                    {% for comment in item.comments %}
+                                        <li>
+                                            <strong>{{ comment.owner_username }}:</strong> {{ comment.text }} (Likes: {{ comment.likes }})
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    No comments
+                                {% endif %}
+                            </td>
+                        </tr>
                         {% endfor %}
-                        </ul>
-                    {% else %}
-                        No comments
-                    {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <br>
-        <a href="{% url 'export_excel' %}">Export to Excel</a>
-    {% else %}
-        <p>No data to display.</p>
-    {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="actions">
+                <a href="{% url 'upload_csv' %}" class="btn btn-secondary">Back to Search</a>
+                <form method="get" action="{% url 'export_excel' %}" id="export_form" class="d-inline-block">
+                    <div class="input-group">
+                        <input type="text" id="excel_filename" name="filename" value="instagram_analysis" class="form-control" placeholder="Enter filename">
+                        <button type="submit" class="btn btn-success">Export to Excel</button>
+                    </div>
+                </form>
+            </div>
+        {% else %}
+            <p class="alert alert-info">No data to display.</p>
+        {% endif %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
